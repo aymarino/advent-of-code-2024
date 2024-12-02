@@ -36,6 +36,8 @@ pub fn p2(input: &str) -> u32 {
 
 #[cfg(test)]
 mod test {
+    use super::*;
+
     static SAMPLE: &str = r#"
         3   4
         4   3
@@ -47,11 +49,11 @@ mod test {
 
     #[test]
     fn sample_p1() {
-        assert_eq!(super::p1(SAMPLE), 11);
+        assert_eq!(p1(SAMPLE), 11);
     }
 
     #[test]
     fn sample_p2() {
-        assert_eq!(super::p2(SAMPLE), 31);
+        assert_eq!(p2(SAMPLE), 31);
     }
 }
