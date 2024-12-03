@@ -2,13 +2,13 @@ use itertools::Itertools;
 
 fn get_reports(input: &str) -> Vec<Vec<u32>> {
     input
+        .trim()
         .lines()
         .map(|l| {
             l.split_ascii_whitespace()
                 .map(|n| n.parse::<u32>().unwrap())
                 .collect()
         })
-        .filter(|v: &Vec<_>| !v.is_empty())
         .collect()
 }
 
