@@ -12,7 +12,7 @@ fn get_reports(input: &str) -> Vec<Vec<u32>> {
         .collect()
 }
 
-fn is_safe(report: &Vec<u32>) -> bool {
+fn is_safe(report: &[u32]) -> bool {
     let increasing = report.iter().is_sorted();
     let decreasing = report.iter().rev().is_sorted();
     let low_diff = report
@@ -24,7 +24,7 @@ fn is_safe(report: &Vec<u32>) -> bool {
 
 pub fn p1(input: &str) -> u32 {
     let reports = get_reports(input);
-    reports.into_iter().filter(is_safe).count() as u32
+    reports.into_iter().filter(|report| is_safe(report)).count() as u32
 }
 
 pub fn p2(input: &str) -> u32 {

@@ -1,30 +1,27 @@
-use regex::Regex;
+use regex::{Captures, Regex};
+
+fn do_mul(c: Captures) -> u32 {
+    let op1 = c[1].parse::<u32>().unwrap();
+    let op2 = c[2].parse::<u32>().unwrap();
+    op1 * op2
+}
 
 pub fn p1(input: &str) -> u32 {
     let re = Regex::new(r"mul\(([0-9]+),([0-9]+)\)").unwrap();
-    re.captures_iter(input)
-        .map(|c| {
-            let op1 = c[1].parse::<u32>().unwrap();
-            let op2 = c[2].parse::<u32>().unwrap();
-            op1 * op2
-        })
-        .sum()
+    re.captures_iter(input).map(do_mul).sum()
 }
 
 pub fn p2(input: &str) -> u32 {
     let mut active = true;
     let re = Regex::new(r"do\(\)|don't\(\)|mul\(([0-9]+),([0-9]+)\)").unwrap();
-    re.captures_iter(&input)
+    re.captures_iter(input)
         .map(|c| {
-            dbg!(&c);
             match &c[0] {
                 "do()" => active = true,
                 "don't()" => active = false,
                 _ => {
                     if active {
-                        let op1 = c[1].parse::<u32>().unwrap();
-                        let op2 = c[2].parse::<u32>().unwrap();
-                        return op1 * op2;
+                        return do_mul(c);
                     }
                 }
             }

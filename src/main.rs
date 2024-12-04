@@ -1,6 +1,7 @@
 mod day01;
 mod day02;
 mod day03;
+mod day04;
 
 fn run<FnT: Fn(&str) -> u32>(label: &str, func: FnT, filename: &str) {
     let input = std::fs::read_to_string(format!("inputs/{filename}")).unwrap();
@@ -15,4 +16,6 @@ fn main() {
     run("2.2", day02::p2, "2.txt");
     run("3.1", day03::p1, "3.txt");
     run("3.2", day03::p2, "3.txt");
+    run("4.1", day04::p1, "4.txt");
+    run("4.2", day04::p2, "4.txt");
 }
