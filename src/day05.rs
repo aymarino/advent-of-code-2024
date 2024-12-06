@@ -1,55 +1,46 @@
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
-fn get_input(input: &str) -> (HashMap<u32, Vec<u32>>, Vec<Vec<u32>>) {
+fn get_input(input: &str) -> (HashMap<u32, Vec<u32>>, impl Iterator<Item = Vec<u32>> + '_) {
     let (pairs, updates) = input.trim().split_once("\n\n").unwrap();
-    let mut pair_map = HashMap::new();
+    let mut rules = HashMap::new();
     pairs
         .lines()
         .map(|line| line.trim().split_once("|").unwrap())
         .map(|(p1, p2)| (p1.parse::<u32>().unwrap(), p2.parse::<u32>().unwrap()))
         .for_each(|(p1, p2)| {
-            pair_map.entry(p1).or_insert(Vec::new()).push(p2);
+            rules.entry(p1).or_insert(Vec::new()).push(p2);
         });
-    let updates = updates
-        .lines()
-        .map(|line| {
-            line.trim()
-                .split(",")
-                .map(|page| page.parse::<u32>().unwrap())
-                .collect()
-        })
-        .collect();
-    (pair_map, updates)
+    let updates = updates.lines().map(|line| {
+        line.trim()
+            .split(",")
+            .map(|page| page.parse::<u32>().unwrap())
+            .collect()
+    });
+    (rules, updates)
 }
 
-fn violates_order(rule_map: &HashMap<u32, Vec<u32>>, p1: &u32, p2: &u32) -> bool {
-    rule_map.get(p1).map_or(false, |v| v.contains(p2))
+fn is_ordered(rules: &HashMap<u32, Vec<u32>>, p1: &u32, p2: &u32) -> bool {
+    let mut ok = rules.get(p1).map_or(true, |v| v.contains(p2));
+    ok &= rules.get(p2).map_or(true, |v| !v.contains(p1));
+    ok
 }
 
 pub fn p1(input: &str) -> u32 {
-    let (rule_map, updates) = get_input(input);
+    let (rules, updates) = get_input(input);
     updates
-        .into_iter()
-        .map(|update: Vec<_>| {
-            if update.is_sorted_by(|p1, p2| violates_order(&rule_map, p1, p2)) {
-                update[update.len() / 2]
-            } else {
-                0
-            }
-        })
+        .filter(|update| update.is_sorted_by(|p1, p2| is_ordered(&rules, p1, p2)))
+        .map(|update| update[update.len() / 2])
         .sum()
 }
 
 pub fn p2(input: &str) -> u32 {
-    let (rule_map, updates) = get_input(input);
+    let (rules, updates) = get_input(input);
     updates
-        .into_iter()
-        .filter(|update: &Vec<_>| !update.is_sorted_by(|p1, p2| violates_order(&rule_map, p1, p2)))
-        .map(|update| {
-            let mut update = update.clone();
+        .filter(|update| !update.is_sorted_by(|p1, p2| is_ordered(&rules, p1, p2)))
+        .map(|mut update| {
             update.sort_by(|p1, p2| {
-                if violates_order(&rule_map, p1, p2) {
+                if is_ordered(&rules, p1, p2) {
                     Ordering::Less
                 } else {
                     Ordering::Greater
