@@ -1,39 +1,29 @@
-fn match_target(target: u64, operands: &mut Vec<u64>, allow_concat: bool) -> bool {
-    assert!(!operands.is_empty());
-    if operands.len() == 1 {
-        return operands[0] == target;
+fn match_target(target: u64, operands: &[u64], accum: u64, allow_concat: bool) -> bool {
+    if operands.is_empty() {
+        return accum == target;
     }
-    if *operands.last().unwrap() > target {
+    if accum > target {
         return false;
     }
 
-    let a = operands.pop().unwrap();
-    let b = operands.pop().unwrap();
-
-    operands.push(a + b);
-    if match_target(target, operands, allow_concat) {
+    let next = operands.first().unwrap();
+    let rest = &operands[1..];
+    if match_target(target, rest, accum + next, allow_concat) {
         return true;
     }
-    operands.pop();
 
-    operands.push(a * b);
-    if match_target(target, operands, allow_concat) {
+    if match_target(target, rest, accum * next, allow_concat) {
         return true;
     }
-    operands.pop();
 
     if allow_concat {
-        let b_num_digits = b.checked_ilog10().unwrap_or(0) + 1;
-        let concat = a * 10u64.pow(b_num_digits) + b;
-        operands.push(concat);
-        if match_target(target, operands, allow_concat) {
+        let next_num_digits = next.checked_ilog10().unwrap_or(0) + 1;
+        let concat = accum * 10u64.pow(next_num_digits) + next;
+        if match_target(target, rest, concat, allow_concat) {
             return true;
         }
-        operands.pop();
     }
 
-    operands.push(b);
-    operands.push(a);
     false
 }
 
@@ -41,36 +31,29 @@ fn get_equations(input: &str) -> impl Iterator<Item = (u64, Vec<u64>)> + '_ {
     input.trim().lines().map(|line| {
         let (target, operands) = line.trim().split_once(": ").unwrap();
         let target = target.parse::<u64>().unwrap();
-        let mut operands: Vec<_> = operands
+        let operands: Vec<_> = operands
             .split(" ")
             .map(|operand| operand.parse::<u64>().unwrap())
             .collect();
-        operands.reverse();
         (target, operands)
     })
 }
 
 pub fn p1(input: &str) -> u64 {
     get_equations(input)
-        .filter_map(|(target, mut operands)| {
-            if match_target(target, &mut operands, false) {
-                Some(target)
-            } else {
-                None
-            }
+        .filter(|(target, operands)| {
+            match_target(*target, &operands[1..], *operands.first().unwrap(), false)
         })
+        .map(|(target, _)| target)
         .sum()
 }
 
 pub fn p2(input: &str) -> u64 {
     get_equations(input)
-        .filter_map(|(target, mut operands)| {
-            if match_target(target, &mut operands, true) {
-                Some(target)
-            } else {
-                None
-            }
+        .filter(|(target, operands)| {
+            match_target(*target, &operands[1..], *operands.first().unwrap(), true)
         })
+        .map(|(target, _)| target)
         .sum()
 }
 
