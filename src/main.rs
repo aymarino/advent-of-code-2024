@@ -5,6 +5,7 @@ mod day04;
 mod day05;
 mod day06;
 mod day07;
+mod day08;
 
 fn run<AccumT: std::fmt::Display, FnT: Fn(&str) -> AccumT>(label: &str, func: FnT, filename: &str) {
     let input = std::fs::read_to_string(format!("inputs/{filename}")).unwrap();
@@ -27,4 +28,6 @@ fn main() {
     run("6.2", day06::p2, "6.txt");
     run("7.1", day07::p1, "7.txt");
     run("7.2", day07::p2, "7.txt");
+    run("8.1", day08::p1, "8.txt");
+    run("8.2", day08::p2, "8.txt");
 }
